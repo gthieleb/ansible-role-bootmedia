@@ -1,5 +1,3 @@
-- debug: msg="{{ bootmedia_data }}"
-
 - name: Create Bootmedia Download Folder
   file: 
     path: "{{ bootmedia_parent_path }}"

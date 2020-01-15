@@ -5,10 +5,16 @@ default_packages:
 # dest: destination file relative to bootmedia_tmp_dir
 # image: if defined mount image and copy template in mounted image location
 bootmedia_template_files:
-    - {src: templates/isolinux.cfg.j2, dest: isolinux/isolinux.cfg}
-    - {src: templates/kickstart.cfg.j2, dest: ks.cfg}
-    - {src: templates/grub.cfg.j2, dest: EFI/BOOT/grub.cfg}
-    - {src: templates/grub.cfg.j2, image: images/efiboot.img, dest: EFI/BOOT/grub.cfg}
+    - src: templates/isolinux.cfg.j2
+      dest: isolinux/isolinux.cfg}
+    - src: templates/kickstart.cfg.j2
+      dest: ks.cfg
+    - src: templates/grub.cfg.j2
+      dest: EFI/BOOT/grub.cfg
+    - src: templates/grub.cfg.j2
+      pre_cmd: mount images/efiboot.img /mnt
+      dest: /mnt/EFI/BOOT/grub.cfg
+      post_cmd: umount /mnt
 
 bootmedia_original_media_url: "http://artfiles.org/centos.org/7/isos/x86_64/CentOS-7-x86_64-Minimal-1908.iso"
 bootmedia_original_media_version: "7.7-1908"

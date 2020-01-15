@@ -2,6 +2,16 @@
   file:
     state: absent
     path: "{{ bootmedia_tmp_dir }}"
+  delegate_to: "{{ host }}"
+  loop:
+      "{{ groups['bootmedia_host'] }}"
+  loop_control:
+    loop_var: host
 
 - name: extract bootmedia files
   command: "{{ bootmedia_extract_command }}"
+  delegate_to: "{{ host }}"
+  loop:
+      "{{ groups['bootmedia_host'] }}"
+  loop_control:
+    loop_var: host

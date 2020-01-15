@@ -1,0 +1,43 @@
+- name: Create bootmedia tmpdir
+  file: 
+    path: "{{ bootmedia_tmp_dir }}"
+    state: directory
+  notify: cleanup bootmedia tmp dir
+
+- name: Create BootISO output folder
+  file:
+    path: "{{ bootmedia_output_path | dirname }}"
+    state: directory
+
+- name: Copy bootmedia files
+  command: > 
+     rsync -r --size-only  
+     --delete --info=NAME 
+     {% if not bootmedia_data.full_content %}
+     {% for exclude in bootmedia_exclude_files %}
+     {{ "--exclude=" + exclude }}
+     {% endfor %}
+     {% endif %}
+     {{ bootmedia_original_content_path }}/ {{ bootmedia_tmp_dir }}/
+  register: rsync_results
+  ### The rsync command is prepared using this
+  ### stackoverflow thread [1] to only contain
+  ### changed files in stdout
+  ### [1] https://stackoverflow.com/questions/1905300/have-rsync-only-report-files-which-were-updated
+  changed_when: rsync_results.stdout_lines
+  notify: cleanup bootmedia tmp dir
+
+- name: Custom tarball task
+  import_tasks: bootmedia_custom_tarball.yaml
+  when: bootmedia_custom_tarball is defined
+
+- name: Create BootMedia Template Files
+  include_tasks: bootmedia_templates.yaml
+  loop:
+    "{{ bootmedia_template_files }}"
+
+# -eltorito-alt-boot -e efi/boot/bootx64.efi \
+- name: Create the BootISO
+  shell: "{{ bootmedia_create_command }}"
+  args:
+    chdir: "{{ bootmedia_tmp_dir }}"

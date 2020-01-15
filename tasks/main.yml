@@ -1,56 +1,26 @@
+---
 - name: Load system and os specific vars 
-  import_tasks: vars.yml
+  import_tasks: bootmedia_vars.yml
 
-- name: Init install_host bootmedia environment
-  import_tasks: init.yml
+- name: Perform required pre-steps to create bootmedias
+  include_tasks: 
+    file: bootmedia_init.yml
+    apply:
+      delegate_to: "{{ host }}"
+  loop:
+      "{{ groups['bootmedia_host'] }}"
+  loop_control:
+    loop_var: host
   tags:
     - init
 
-- name: Set inventory_hostname to name
-  set_fact:
-    bootmedia_data: "{{ bootmedia_data | combine({'name':inventory_hostname_short}) }}"
-  when: bootmedia.name is not defined
-
-- name: Create bootmedia tmpdir
-  file: 
-    path: "{{ bootmedia_tmp_dir }}"
-    state: directory
-  notify: cleanup bootmedia tmp dir
-
-- name: Create BootISO output folder
-  file:
-    path: "{{ bootmedia_output_path | dirname }}"
-    state: directory
-
-- name: Copy bootmedia files
-  command: > 
-     rsync -r --size-only  
-     --delete --info=NAME 
-     {% if not bootmedia_data.full_content %}
-     {% for exclude in bootmedia_exclude_files %}
-     {{ "--exclude=" + exclude }}
-     {% endfor %}
-     {% endif %}
-     {{ bootmedia_original_content_path }}/ {{ bootmedia_tmp_dir }}/
-  register: rsync_results
-  ### The rsync command is prepared using this
-  ### stackoverflow thread [1] to only contain
-  ### changed files in stdout
-  ### [1] https://stackoverflow.com/questions/1905300/have-rsync-only-report-files-which-were-updated
-  changed_when: rsync_results.stdout_lines
-  notify: cleanup bootmedia tmp dir
-
-- name: Custom tarball task
-  import_tasks: bootmedia_custom_tarball.yaml
-  when: bootmedia_custom_tarball is defined
-
-- name: Create BootMedia Template Files
-  include_tasks: templates.yaml
+- name: Prepare bootmedia
+  include_tasks: 
+    file: bootmedia_prepare.yml
+    apply:
+      delegate_to: "{{ host }}"
   loop:
-    "{{ bootmedia_template_files }}"
+      "{{ groups['bootmedia_host'] }}"
+  loop_control:
+    loop_var: host
 
-# -eltorito-alt-boot -e efi/boot/bootx64.efi \
-- name: Create the BootISO
-  shell: "{{ bootmedia_create_command }}"
-  args:
-    chdir: "{{ bootmedia_tmp_dir }}"

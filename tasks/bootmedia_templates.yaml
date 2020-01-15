@@ -1,0 +1,30 @@
+
+- name: Pre command for nested image
+  command: "{{ item.pre_cmd }}"
+  args:
+    chdir: "{{ bootmedia_tmp_dir }}"
+  become: true
+  when: item.pre_cmd is defined
+
+- name: Set output directory for image
+  set_fact:
+    template_destination: |
+      {% if item.dest.startswith('/') %}
+      {{ item.dest }}
+      {% else %}
+      {{ bootmedia_tmp_dir }}/{{ item.dest }}
+      {% endif %}
+
+- template:
+    src: "{{ item.src }}"
+    dest: template_destination
+  become: true
+
+- name: Post command for nested image
+  command: "{{ item.post_cmd }}"
+  args:
+    chdir: "{{ bootmedia_tmp_dir }}"
+  become: true
+  when: item.post_cmd is defined
+
+

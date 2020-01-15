@@ -1,4 +1,4 @@
-bootmedia_owner: "{{ hostvars[groups['install_host'][0]]['ansible_user_id'] }}"
+bootmedia_owner: "{{ hostvars[groups['bootmedia_host'][0]]['ansible_user_id'] }}"
 
 bootmedia_additional_packages:
   - xorriso
