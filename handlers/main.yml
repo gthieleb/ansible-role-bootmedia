@@ -1,0 +1,7 @@
+- name: cleanup bootmedia tmp dir
+  file:
+    state: absent
+    path: "{{ bootmedia_tmp_dir }}"
+
+- name: extract bootmedia files
+  command: "{{ bootmedia_extract_command }}"

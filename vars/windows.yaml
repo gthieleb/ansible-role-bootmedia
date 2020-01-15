@@ -1,0 +1,30 @@
+bootmedia_additional_packages:
+  - rsync
+  - p7zip
+  - tar
+
+bootmedia_template_files:
+    - {src: templates/win10-autounattend.xml.j2, dest: autounattend.xml}
+
+bootmedia_original_media_filename: Win10_1809Oct_German_x64.iso
+bootmedia_original_content_path: "{{ bootmedia_parent_path }}/{{ (bootmedia_original_media_filename|basename|splitext)[0] }}"
+
+bootmedia_extract_command: >
+  7z x "{{ bootmedia_parent_path }}/{{ bootmedia_original_media_filename }}" -o"{{ bootmedia_original_content_path }}"
+
+bootmedia_create_command: >
+  mkisofs \
+    -iso-level 4 \
+    -l -R -UDF -D \
+    -volid "WIN10" \
+    -b "boot/etfsboot.com" \
+    -no-emul-boot \
+    -boot-load-size 8 \
+    -hide boot.catalog \
+    -eltorito-alt-boot \
+    -eltorito-platform efi \
+    -no-emul-boot \
+    -b efi/microsoft/boot/efisys_noprompt.bin \
+    -o {{ bootmedia_output_path }} .
+
+

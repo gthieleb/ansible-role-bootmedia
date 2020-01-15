@@ -1,0 +1,49 @@
+- debug: msg="{{ bootmedia_data }}"
+
+- name: Create Bootmedia Download Folder
+  file: 
+    path: "{{ bootmedia_parent_path }}"
+    state: directory
+    owner: "{{ bootmedia_owner }}"
+  become: true
+
+- name: Create Bootmedia tmp base dir
+  file:
+    path: "{{ bootmedia_tmp_base_dir }}"
+    state: directory
+    mode: "2770"
+    owner: "{{ bootmedia_owner }}"
+  become: true
+
+- name: Setup additional packages for bootmedia creation
+  package:
+    name: "{{ bootmedia_additional_packages }}"
+    state: installed
+  become: true
+
+- name: Download bootmedia {{ bootmedia_original_media_url }}
+  get_url:
+    url: "{{ bootmedia_original_media_url }}"
+    dest: "{{ bootmedia_parent_path }}/{{ bootmedia_original_media_filename }}"
+    owner: "{{ bootmedia_owner }}"
+    tmp_dest: "{{ bootmedia_tmp_base_dir }}"
+  when: bootmedia_original_media_url is defined and bootmedia_original_media_url
+  become: true
+
+- name: Create bootmedia original content dir
+  file:
+    name: "{{ bootmedia_original_content_path }}"
+    state: directory
+  notify: extract bootmedia files
+  become: true
+
+- name: Adjust permissions for bootmedia directory so that other files could be created
+  file:
+    dest: "{{ bootmedia_original_content_path }}"
+    recurse: true
+    mode: "2775"
+    owner: "{{ bootmedia_owner }}"
+  become: true
+
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  meta: flush_handlers

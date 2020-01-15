@@ -1,0 +1,11 @@
+bootmedia_owner: "{{ hostvars[groups['install_host'][0]]['ansible_user_id'] }}"
+
+bootmedia_additional_packages:
+  - xorriso
+  - syslinux
+
+bootmedia_parent_path: "{{ playbook_dir }}/bootmedia"
+bootmedia_output_path: "{{ bootmedia_parent_path }}/{{ inventory_hostname_short }}.iso"
+bootmedia_tmp_base_dir: "{{ bootmedia_parent_path }}/tmp"
+bootmedia_tmp_parent_dir: "{{ bootmedia_tmp_base_dir }}/{{ inventory_hostname_short }}"
+bootmedia_tmp_dir: "{{ bootmedia_tmp_parent_dir }}/files"

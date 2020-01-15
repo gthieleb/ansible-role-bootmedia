@@ -1,0 +1,33 @@
+set default="1"
+
+function load_video {
+  insmod efi_gop
+  insmod efi_uga
+  insmod video_bochs
+  insmod video_cirrus
+  insmod all_video
+}
+
+load_video
+set gfxpayload=keep
+insmod gzio
+insmod part_gpt
+insmod ext2
+
+set timeout=60
+### END /etc/grub.d/00_header ###
+
+{% set boot=namespace() %}
+{% set boot=bootmedia_data.networks[0] %}
+
+search --no-floppy --set=root -l 'CentOS 7 x86_64'
+
+### BEGIN /etc/grub.d/10_linux ###
+menuentry 'Install "{{ bootmedia_data.distribution }}" (Version: {{ bootmedia_original_media_version }})  unattended on "{{ inventory_hostname_short }}"' --class fedora --class gnu-linux --class gnu --class os {
+  {% if bootmedia_data.full_content %}
+	linuxefi /images/pxeboot/vmlinuz modprobe.blacklist=lpfc inst.text inst.stage2=hd:LABEL={{ inventory_hostname_short }} inst.ks=cdrom
+  {% else %}
+	linuxefi /images/pxeboot/vmlinuz modprobe.blacklist=lpfc inst.text inst.ks=cdrom nameserver={{ boot.dns }} bootif={{ boot.mac }} ip={{ boot.address }}::{{ boot.gateway }}:{{ boot.netmask }}:::none inst.http={{ bootmedia_data.repos[0].url }}
+  {% endif %}
+	initrdefi /images/pxeboot/initrd.img
+}

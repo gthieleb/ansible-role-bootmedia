@@ -1,0 +1,169 @@
+#version=RHEL7
+#
+# System authorization information
+auth --enableshadow --passalgo=sha512
+
+{% if bootmedia_data.initial_password is defined %}
+rootpw --iscrypted {{ bootmedia_data.initial_password | password_hash('sha512', 'HSHMnSKecYNpSi3C') }}
+{% else %}
+rootpw --lock
+{% endif %}
+
+###
+## poweroff after installation is complete
+## put this right after rootpw entry as suggested in https://access.redhat.com/support/cases/#/case/02059202
+#
+poweroff 
+
+# set selinux to permissive mode if selinux is explicitly set to false
+{% if bootmedia_data.selinux is defined and not bootmedia_data.selinux %}
+selinux --permissive
+{% else %}
+selinux --enforcing
+{% endif %}
+
+# at least one repo url is required at this step
+{% if not bootmedia_data.full_content %}
+install 
+url --url={{ bootmedia_data.repos[0].url }} 
+{% endif %}
+
+# All available layouts can be viewed on the xkeyboard-config(7) man page under
+# Layouts. 
+keyboard --vckeymap=de-nodeadkeys --xlayouts='de (nodeadkeys)'
+
+# System language
+{% if bootmedia_data.language %}
+lang {{ bootmedia_data.language }} {% if bootmedia_data.locale %}--addsupport={{ bootmedia_data.locale }}{% endif %}
+{% else %}
+lang en_US.UTF-8 {% if bootmedia_data.locale %}--addsupport={{ bootmedia_data.locale }}{% endif %}
+{% endif %}
+
+# disable firewall if explicitly set to false
+{% if bootmedia_data.firewall is defined and not bootmedia_data.firewall %}
+firewall --disabled
+{% else %}
+firewall --enabled --ssh
+{% endif %}
+
+# anaconda does not support multilines so we have to put related config for a network in a single line
+{% for network in bootmedia_data.networks %}
+network --device={{ network.mac }} --onboot=on {% if bootmedia_data.ipv6 is defined and not bootmedia_data.ipv6 %}--noipv6{% endif %} {% if network.dhcp is defined and network.dhcp %} --bootproto=dhcp --hostname={{ inventory_hostname_short }} {% else %} --bootproto=static --ip={{ network.address }} --netmask={{ network.netmask }} {% if network.dns is defined and network.dns %} --nameserver={{ network.dns }} {% else %} --nodns {% endif%} {% if network.admin %} --hostname={{ inventory_hostname_short }} --gateway={{ network.gateway }} --activate {% endif %} {% endif %}
+{% endfor %}
+
+# append further repos
+{% if bootmedia_data.repos is defined %}
+{% for repo in bootmedia_data.repos[1:] %}
+repo --name={{ r.name }} --baseurl={{ r.url }} 
+{% endfor %}
+{% endif %}
+
+# System timezone
+timezone {{ bootmedia_data.timezone }} --isUtc
+
+{% set bootdisk=namespace() %}
+{% if bootmedia_data.bootdisk %}
+{% set bootdisk.name=bootmedia_data.bootdisk %}
+{% else %}
+{% set bootdisk.name=bootmedia_data.disks[0].name %}
+{% endif %}
+
+ignoredisk --only-use={{ bootdisk.name }}
+# BOOTLOADER
+# System bootloader configuration
+# System bootloader configuration
+bootloader --append=" crashkernel=auto" --location=mbr --boot-drive={{ bootdisk.name }}
+bootloader --location=mbr --boot-drive={{ bootdisk.name }}
+# PARTITIONIERUNG UND LVM KONFIG.
+clearpart --all --drives={{ bootdisk.name }} --initlabel
+
+{% if bootmedia_data.encrypted is defined %}
+### It is known fact [1] that
+### currently only a plain text password is possible
+### So this should only be a seperate initial password
+### and changed via config management afterwards
+### [1] https://access.redhat.com/discussions/3170721
+part pv.00 --fstype="lvmpv" --ondisk={{ bootdisk.name }} --size=8192 --grow --encrypted --passphrase={{ bootdisk.encryption_passphrase }}
+{% else %}
+part pv.00 --fstype="lvmpv" --ondisk={{ bootdisk.name }} --size=8192 --grow
+{% endif %}
+
+part /boot --fstype="ext4" --size=512
+
+{% if bootmedia_data.efiboot %}
+part /boot/efi --fstype="efi" --size=200 --fsoptions="umask=0077,shortname=winnt"
+{% endif %}
+
+volgroup vg00 --pesize=32768 pv.00
+
+logvol /  --fstype="ext4" --size=6000 --label="root" --name=lvol1 --vgname=vg00
+logvol /home --fstype="ext4" --name=lvol2 --vgname=vg00 --size=1024 --fsoptions="defaults,nosuid"
+{% if bootmedia_data.memory is not defined or bootmedia_data.memory > 8 %}
+logvol swap --fstype=swap --name=swapvol --vgname=vg00 --size=8192
+{% else %}
+logvol swap --fstype=swap --name=swapvol --vgname=vg00 --size={{ bootmedia_data.memory * 1024 }}
+{% endif %}
+
+%packages
+{% if bootmedia_data.packages is defined %}
+{% for package in bootmedia_data.packages %}
+{{ package }}
+{% endfor %}
+{% else %}
+{% for package in default_packages %}
+{{ package }}
+{% endfor %}
+{% endif %}
+%end
+
+# System services
+services --enabled="chronyd"
+
+{% if bootmedia_data.user is defined %}
+user --name={{ bootmedia_data.user.username }} --groups=wheel --iscrypted={{ bootmedia_data.user.initial_password | password_hash('sha512', 'HSHMnSKecYNpSi3C') }} --gecos="{{ bootmedia_data.user.gecos }}"
+{% endif %}
+
+{% if ansible_virtualization_role is defined and ansible_virtualization_role == "host" %}
+%addon com_redhat_kdump --enable --reserve-mb='128'
+%end
+{% endif %}
+
+# POST EXECUTION
+%post --nochroot
+#!/bin/sh
+exec  &> /mnt/sysimage/root/anaconda-ks-post-nochroot-section.log
+
+# remove initially created blacklist file
+modprobe_blacklist="/mnt/sysimage/etc/modprobe.d/anaconda-blacklist.conf"
+[ -f "$modprobe_blacklist" ] && rm "$modprobe_blacklist"
+
+### RHEL / CentOS 7 mountpoint for cdrom changed to /run/install
+mntpoint="$(mount|awk '/\/dev\/sr0/{print $3}')"
+if [ -z "$mntpoint" ]
+then
+    mntpoint="/run/install/repo/"
+    mount /dev/sr0 "$mntpoint"
+else
+    printf "%s already mounted!\n" "$mntpoint"
+	mntpoint="${mntpoint}/"
+fi
+
+tar xf ${mntpoint}{{ bootmedia_custom_tarball.dest }} -C /mnt/sysimage
+
+### This snippet is autocreated by ANSIBLE Jinja!
+### The following lines correct the owner/permissions for deployed 
+### directories and files that are deployed by the tarball.
+{% for item in bootmedia_custom_tarball.directories %}
+chown {{ item.owner }}:{{ item.owner }} /mnt/sysimage/{{ item.dest }}
+chmod {{ item.mode }} /mnt/sysimage/{{ item.dest }}
+{% endfor %}
+
+### This snippet is autocreated by ANSIBLE Jinja!
+### The following lines correct the owner/permissions for deployed 
+### directories and files that are deployed by the tarball.
+{% for item in bootmedia_custom_tarball.files %}
+chown {{ item.owner }}:{{ item.owner }} /mnt/sysimage/{{ item.dest }}
+chmod {{ item.mode }} /mnt/sysimage/{{ item.dest }}
+{% endfor %}
+
+%end

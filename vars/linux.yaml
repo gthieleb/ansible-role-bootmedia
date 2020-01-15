@@ -1,0 +1,35 @@
+boottemplate:
+  - rsync
+  - bsdtar
+  - tar
+  - xorriso
+
+# use authorized_keys file from users home
+bootmedia_authorized_keys_file: "{{ '~/.ssh/authorized_keys' | expanduser }}"
+
+bootmedia_custom_tarball:
+  dest: files.tar
+  src: "{{ bootmedia_tmp_base_dir }}/tarball_files/{{ inventory_hostname_short }}"
+  directories:
+    - {dest: /, mode: "0755", owner: root}
+    - {dest: /root, mode: "0700", owner: root}
+    - {dest: /root/.ssh, mode: "0700", owner: root}
+  files:
+    - {src: "{{ bootmedia_authorized_keys_file }}", dest: "/root/.ssh/authorized_keys", mode: "0600", owner: root}
+
+bootmedia_create_command: >
+  xorriso -as mkisofs \
+    -o {{ bootmedia_output_path }} . \
+    -A "{{ inventory_hostname_short }}" \
+    -V "{{ inventory_hostname_short }}" \
+    -volset "{{ inventory_hostname_short }}" \
+    -isohybrid-mbr /usr/share/syslinux/isohdpfx.bin \
+    -c isolinux/boot.cat \
+    -b isolinux/isolinux.bin \
+    -no-emul-boot \
+    -boot-load-size 4 \
+    -boot-info-table \
+    -eltorito-alt-boot \
+    -e images/efiboot.img \
+    -isohybrid-gpt-basdat \
+    -no-emul-boot -R -J .

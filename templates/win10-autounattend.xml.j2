@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend">
+  <settings pass="windowsPE">
+    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <SetupUILanguage>
+        <UILanguage>de-DE</UILanguage>
+      </SetupUILanguage>
+      <InputLocale>0c09:00000409</InputLocale>
+      <SystemLocale>de-DE</SystemLocale>
+      <UILanguage>de-DE</UILanguage>
+      <UILanguageFallback>de-DE</UILanguageFallback>
+      <UserLocale>de-DE</UserLocale>
+    </component>
+    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+    {% if bootmedia_data.efiboot %}
+    <DiskConfiguration>
+      <Disk wcm:action="add">
+        <DiskID>0</DiskID>
+        <WillWipeDisk>true</WillWipeDisk>
+        <CreatePartitions>
+          <!-- Windows RE Tools partition -->
+          <CreatePartition wcm:action="add">
+            <Order>1</Order>
+            <Type>Primary</Type>
+            <Size>300</Size>
+          </CreatePartition>
+          <!-- System partition (ESP) -->
+          <CreatePartition wcm:action="add">
+            <Order>2</Order>
+            <Type>EFI</Type>
+            <Size>100</Size>
+          </CreatePartition>
+          <!-- Microsoft reserved partition (MSR) -->
+          <CreatePartition wcm:action="add">
+            <Order>3</Order>
+            <Type>MSR</Type>
+            <Size>128</Size>
+          </CreatePartition>
+          <!-- Windows partition -->
+          <CreatePartition wcm:action="add">
+            <Order>4</Order>
+            <Type>Primary</Type>
+            <Extend>true</Extend>
+          </CreatePartition>
+        </CreatePartitions>
+        <ModifyPartitions>
+          <!-- Windows RE Tools partition -->
+          <ModifyPartition wcm:action="add">
+            <Order>1</Order>
+            <PartitionID>1</PartitionID>
+            <Label>WINRE</Label>
+            <Format>NTFS</Format>
+            <TypeID>DE94BBA4-06D1-4D40-A16A-BFD50179D6AC</TypeID>
+          </ModifyPartition>
+          <!-- System partition (ESP) -->
+          <ModifyPartition wcm:action="add">
+            <Order>2</Order>
+            <PartitionID>2</PartitionID>
+            <Label>System</Label>
+            <Format>FAT32</Format>
+          </ModifyPartition>
+          <!-- MSR partition does not need to be modified -->
+          <ModifyPartition wcm:action="add">
+            <Order>3</Order>
+            <PartitionID>3</PartitionID>
+          </ModifyPartition>
+          <!-- Windows partition -->
+          <ModifyPartition wcm:action="add">
+            <Order>4</Order>
+            <PartitionID>4</PartitionID>
+            <Label>OS</Label>
+            <Letter>C</Letter>
+            <Format>NTFS</Format>
+          </ModifyPartition>
+        </ModifyPartitions>
+      </Disk>
+    </DiskConfiguration>
+    <ImageInstall>
+      <OSImage>
+        <InstallTo>
+          <DiskID>0</DiskID>
+          <PartitionID>4</PartitionID>
+        </InstallTo>
+        <InstallToAvailablePartition>false</InstallToAvailablePartition>
+      </OSImage>
+    </ImageInstall>
+    {% else %}
+    <DiskConfiguration>
+        <Disk wcm:action="add">
+          <CreatePartitions>
+            <CreatePartition wcm:action="add">
+              <Order>1</Order>
+              <Type>Primary</Type>
+              <Size>100</Size>
+            </CreatePartition>
+            <CreatePartition wcm:action="add">
+              <Extend>true</Extend>
+              <Order>2</Order>
+              <Type>Primary</Type>
+            </CreatePartition>
+          </CreatePartitions>
+          <ModifyPartitions>
+            <ModifyPartition wcm:action="add">
+              <Active>true</Active>
+              <Format>NTFS</Format>
+              <Label>System Reserved</Label>
+              <Order>1</Order>
+              <PartitionID>1</PartitionID>
+              <TypeID>0x27</TypeID>
+            </ModifyPartition>
+            <ModifyPartition wcm:action="add">
+              <Active>true</Active>
+              <Format>NTFS</Format>
+              <Label>OS</Label>
+              <Letter>C</Letter>
+              <Order>2</Order>
+              <PartitionID>2</PartitionID>
+            </ModifyPartition>
+          </ModifyPartitions>
+          <DiskID>0</DiskID>
+          <WillWipeDisk>true</WillWipeDisk>
+        </Disk>
+      </DiskConfiguration>
+      <ImageInstall>
+        <OSImage>
+          <InstallTo>
+            <DiskID>0</DiskID>
+            <PartitionID>2</PartitionID>
+          </InstallTo>
+          <InstallToAvailablePartition>false</InstallToAvailablePartition>
+        </OSImage>
+      </ImageInstall>
+      {% endif %}
+      <UserData>
+        <AcceptEula>true</AcceptEula>
+        <FullName>admin</FullName>
+        <Organization/>
+        <ProductKey>
+          <Key>W269N-WFGWX-YVC9B-4J6C9-T83GX</Key>
+        </ProductKey>
+      </UserData>
+    </component>
+  </settings>
+  <settings pass="offlineServicing">
+    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-LUA-Settings" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <EnableLUA>false</EnableLUA>
+    </component>
+  </settings>
+  <settings pass="generalize">
+    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Security-SPP" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <SkipRearm>1</SkipRearm>
+    </component>
+  </settings>
+  <settings pass="specialize">
+    <component name="Microsoft-Windows-TCPIP" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Interfaces>
+      {% for network in bootmedia_data.networks %}
+      {% if network.dhcp %}
+      <Interface wcm:action="add">
+        <Identifier>{{ network.mac.replace(':', '-') }}</Identifier>
+        <Ipv4Settings>
+          <DhcpEnabled>true</DhcpEnabled>
+          <Metric>10</Metric>
+          <RouterDiscoveryEnabled>false</RouterDiscoveryEnabled>
+        </Ipv4Settings>
+      </Interface>
+      {% else %}
+      <Interface wcm:action="add">
+        <Identifier>{{ network.mac.replace(':', '-') }}</Identifier>
+        <Ipv4Settings>
+          <DhcpEnabled>false</DhcpEnabled>
+        </Ipv4Settings>
+        <UnicastIpAddresses>
+          <IpAddress wcm:action="add" wcm:keyValue="1">{{ network.address }}/{{ network.cidr | ipaddr('prefix') }}</IpAddress>
+        </UnicastIpAddresses>
+        {% if network.install %}
+        <Routes>
+          <Route wcm:action="add">
+            <Identifier>1</Identifier>
+            <Metric>10</Metric>
+            <NextHopAddress>{{ network.gateway }}</NextHopAddress>
+            <Prefix>0.0.0.0/0</Prefix>
+          </Route>
+        </Routes>
+        {% endif %}
+      </Interface>
+      {% endif %}
+      {% endfor %}
+    </Interfaces>
+    </component>
+    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-International-Core" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <InputLocale>0c09:00000409</InputLocale>
+      <SystemLocale>de-DE</SystemLocale>
+      <UILanguage>de-DE</UILanguage>
+      <UILanguageFallback>de-DE</UILanguageFallback>
+      <UserLocale>de-DE</UserLocale>
+    </component>
+    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Security-SPP-UX" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <SkipAutoActivation>true</SkipAutoActivation>
+    </component>
+    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-SQMApi" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <CEIPEnabled>0</CEIPEnabled>
+    </component>
+    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <ComputerName>-PC</ComputerName>
+      <ProductKey>W269N-WFGWX-YVC9B-4J6C9-T83GX</ProductKey>
+    </component>
+  </settings>
+  <settings pass="oobeSystem">
+    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <AutoLogon>
+        <Password>
+          <Value>admin1234</Value>
+          <PlainText>true</PlainText>
+        </Password>
+        <Enabled>true</Enabled>
+        <Username>admin</Username>
+      </AutoLogon>
+      <OOBE>
+        <HideEULAPage>true</HideEULAPage>
+        <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
+        <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+        <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+        <NetworkLocation>Home</NetworkLocation>
+        <SkipUserOOBE>true</SkipUserOOBE>
+        <SkipMachineOOBE>true</SkipMachineOOBE>
+        <ProtectYourPC>1</ProtectYourPC>
+      </OOBE>
+      <UserAccounts>
+        <LocalAccounts>
+          <LocalAccount wcm:action="add">
+            <Password>
+              <Value>admin1234</Value>
+              <PlainText>true</PlainText>
+            </Password>
+            <Description>admin</Description>
+            <DisplayName>admin</DisplayName>
+            <Group>Administrators</Group>
+            <Name>admin</Name>
+          </LocalAccount>
+        </LocalAccounts>
+      </UserAccounts>
+      <RegisteredOrganization/>
+      <RegisteredOwner>admin</RegisteredOwner>
+      <DisableAutoDaylightTimeSet>false</DisableAutoDaylightTimeSet>
+      <FirstLogonCommands>
+        <SynchronousCommand wcm:action="add">
+          <Description>Control Panel View</Description>
+          <Order>1</Order>
+          <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v StartupPage /t REG_DWORD /d 1 /f</CommandLine>
+          <RequiresUserInput>true</RequiresUserInput>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+          <Order>2</Order>
+          <Description>Control Panel Icon Size</Description>
+          <RequiresUserInput>false</RequiresUserInput>
+          <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v AllItemsIconView /t REG_DWORD /d 0 /f</CommandLine>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+          <Order>3</Order>
+          <RequiresUserInput>false</RequiresUserInput>
+          <CommandLine>cmd /C wmic useraccount where name="admin" set PasswordExpires=false</CommandLine>
+          <Description>Password Never Expires</Description>
+        </SynchronousCommand>
+      </FirstLogonCommands>
+      <TimeZone>W. Europe Standard Time</TimeZone>
+    </component>
+    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <AutoLogon>
+        <Password>
+          <Value>admin1234</Value>
+          <PlainText>true</PlainText>
+        </Password>
+        <Enabled>true</Enabled>
+        <Username>admin</Username>
+      </AutoLogon>
+      <OOBE>
+        <HideEULAPage>true</HideEULAPage>
+        <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
+        <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+        <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+        <NetworkLocation>Home</NetworkLocation>
+        <SkipUserOOBE>true</SkipUserOOBE>
+        <SkipMachineOOBE>true</SkipMachineOOBE>
+        <ProtectYourPC>1</ProtectYourPC>
+      </OOBE>
+      <UserAccounts>
+        <LocalAccounts>
+          <LocalAccount wcm:action="add">
+            <Password>
+              <Value>admin1234</Value>
+              <PlainText>true</PlainText>
+            </Password>
+            <Description>admin</Description>
+            <DisplayName>admin</DisplayName>
+            <Group>Administrators</Group>
+            <Name>admin</Name>
+          </LocalAccount>
+        </LocalAccounts>
+      </UserAccounts>
+      <RegisteredOrganization/>
+      <RegisteredOwner>admin</RegisteredOwner>
+      <DisableAutoDaylightTimeSet>false</DisableAutoDaylightTimeSet>
+      <FirstLogonCommands>
+        <SynchronousCommand wcm:action="add">
+          <Description>Control Panel View</Description>
+          <Order>1</Order>
+          <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v StartupPage /t REG_DWORD /d 1 /f</CommandLine>
+          <RequiresUserInput>true</RequiresUserInput>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+          <Order>2</Order>
+          <Description>Control Panel Icon Size</Description>
+          <RequiresUserInput>false</RequiresUserInput>
+          <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v AllItemsIconView /t REG_DWORD /d 0 /f</CommandLine>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+          <Order>3</Order>
+          <RequiresUserInput>false</RequiresUserInput>
+          <CommandLine>cmd /C wmic useraccount where name="admin" set PasswordExpires=false</CommandLine>
+          <Description>Password Never Expires</Description>
+        </SynchronousCommand>
+      </FirstLogonCommands>
+      <TimeZone>W. Europe Standard Time</TimeZone>
+    </component>
+  </settings>
+</unattend>
