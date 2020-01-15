@@ -52,3 +52,10 @@ bootmedia_data:
       dns: 192.168.122.1
       mac: 52:54:00:a3:48:7c
 ```
+
+Example Commandline:
+
+```
+ansible-playbook -i inventory bootmedia_prepare.yml -e@~/centos-full.yml
+```
+
