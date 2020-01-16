@@ -4,9 +4,6 @@ boottemplate:
   - tar
   - xorriso
 
-# use authorized_keys file from users home
-bootmedia_authorized_keys_file: "{{ '~/.ssh/authorized_keys' | expanduser }}"
-
 bootmedia_custom_tarball:
   dest: files.tar
   src: "{{ bootmedia_tmp_base_dir }}/tarball_files/{{ inventory_hostname_short }}"
@@ -16,6 +13,32 @@ bootmedia_custom_tarball:
     - {dest: /root/.ssh, mode: "0700", owner: root}
   files:
     - {src: "{{ bootmedia_authorized_keys_file }}", dest: "/root/.ssh/authorized_keys", mode: "0600", owner: root}
+
+bootmedia_target_services_enabled:
+  - chronyd
+
+bootmedia_target_filesystems:
+  - mount: /boot
+    size: 512
+    fstype: ext4
+  - mount: /
+    size: 1024
+    fstype: ext4
+  - mount: /usr
+    size: 4096
+    fstype: ext4
+  - mount: /var
+    size: 4096
+    fstype: ext4
+  - mount: /home
+    size: 4096
+    fstype: ext4
+  - mount: /opt
+    size: 2048
+    fstype: ext4
+  - mount: swap
+    size: 2048
+    fstype: swap
 
 bootmedia_create_command: >
   xorriso -as mkisofs \

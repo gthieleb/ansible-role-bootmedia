@@ -1,0 +1,25 @@
+# src: template file
+# dest: destination file relative to bootmedia_tmp_dir
+# image: if defined mount image and copy template in mounted image location
+bootmedia_template_files:
+    - src: templates/isolinux.cfg.j2
+      dest: "{{ bootmedia_tmp_dir }}/isolinux/isolinux.cfg"
+    - src: templates/kickstart.cfg.j2
+      dest: "{{ bootmedia_tmp_dir }}/ks.cfg"
+    - src: templates/grub.cfg.j2
+      dest: "{{ bootmedia_tmp_dir }}/EFI/BOOT/grub.cfg"
+    - src: templates/grub.cfg.j2
+      pre_cmd: "mount images/efiboot.img {{ bootmedia_nested_images_mnt_dir }}"
+      dest: "{{ bootmedia_nested_images_mnt_dir }}/EFI/BOOT/grub.cfg"
+      post_cmd: "umount {{ bootmedia_nested_images_mnt_dir }}"
+
+bootmedia_extract_command: >
+  bsdtar -xvf "{{ bootmedia_parent_path }}/{{ bootmedia_original_media_filename }}" -C "{{ bootmedia_original_content_path }}"
+
+bootmedia_exclude_files:
+  - LiveOS
+  - LiveOS/*
+  - Packages
+  - Packages/*
+  - repodata
+  - repodata/*

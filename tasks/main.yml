@@ -1,26 +1,12 @@
 ---
-- name: Load system and os specific vars 
-  import_tasks: bootmedia_vars.yml
-
-- name: Perform required pre-steps to create bootmedias
-  include_tasks: 
-    file: bootmedia_init.yml
-    apply:
-      delegate_to: "{{ host }}"
+  # according to this explanation [1]
+  # we should use include_tasks
+  # and a dedicated loop task file
+  # that uses import_tasks
+  # [1] https://medium.com/opsops/ansible-2-5-delegate-to-and-include-role-20cd7e67008e
+- name: Loop with delegated bootmedia_hosts
+  include_tasks: loop.yml
   loop:
       "{{ groups['bootmedia_host'] }}"
   loop_control:
-    loop_var: host
-  tags:
-    - init
-
-- name: Prepare bootmedia
-  include_tasks: 
-    file: bootmedia_prepare.yml
-    apply:
-      delegate_to: "{{ host }}"
-  loop:
-      "{{ groups['bootmedia_host'] }}"
-  loop_control:
-    loop_var: host
-
+    loop_var: bootmedia_host

@@ -1,0 +1,12 @@
+---
+- name: Load system and os specific vars 
+  import_tasks: bootmedia_vars.yml
+  delegate_to: "{{ bootmedia_host }}"
+
+- name: Perform required pre-tasks to create bootmedias
+  import_tasks: bootmedia_init.yml
+  delegate_to: "{{ bootmedia_host }}"
+
+- name: Perform tasks to create bootmedia
+  import_tasks: bootmedia_prepare.yml
+  delegate_to: "{{ bootmedia_host }}"

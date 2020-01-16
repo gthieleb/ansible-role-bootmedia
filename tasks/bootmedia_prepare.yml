@@ -1,13 +1,17 @@
-- name: Create bootmedia tmpdir
-  file: 
-    path: "{{ bootmedia_tmp_dir }}"
-    state: directory
-  notify: cleanup bootmedia tmp dir
-
+---
 - name: Create BootISO output folder
   file:
     path: "{{ bootmedia_output_path | dirname }}"
     state: directory
+
+- name: Create bootmedia tmpdirs
+  file: 
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ bootmedia_nested_images_mnt_dir }}"
+    - "{{ bootmedia_tmp_dir }}"
+  notify: cleanup bootmedia tmp dir parent
 
 - name: Copy bootmedia files
   command: > 
@@ -25,18 +29,17 @@
   ### changed files in stdout
   ### [1] https://stackoverflow.com/questions/1905300/have-rsync-only-report-files-which-were-updated
   changed_when: rsync_results.stdout_lines
-  notify: cleanup bootmedia tmp dir
+  notify: cleanup bootmedia tmp dir parent
 
 - name: Custom tarball task
-  import_tasks: bootmedia_custom_tarball.yaml
+  include_tasks: bootmedia_custom_tarball.yml
   when: bootmedia_custom_tarball is defined
 
 - name: Create BootMedia Template Files
-  include_tasks: bootmedia_templates.yaml
+  include_tasks: bootmedia_templates.yml
   loop:
     "{{ bootmedia_template_files }}"
 
-# -eltorito-alt-boot -e efi/boot/bootx64.efi \
 - name: Create the BootISO
   shell: "{{ bootmedia_create_command }}"
   args:

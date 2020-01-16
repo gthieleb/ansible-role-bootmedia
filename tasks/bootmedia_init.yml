@@ -1,3 +1,6 @@
+- name: Load variable file based on the bootmedia_host system family
+  include_vars: "vars/bootmedia_host/{{ hostvars[bootmedia_host].ansible_os_family.lower() }}.yml"
+
 - name: Create Bootmedia Download Folder
   file: 
     path: "{{ bootmedia_parent_path }}"
@@ -13,9 +16,9 @@
     owner: "{{ bootmedia_owner }}"
   become: true
 
-- name: Setup additional packages for bootmedia creation
+- name: Setup required packages for bootmedia creation
   package:
-    name: "{{ bootmedia_additional_packages }}"
+    name: "{{ bootmedia_host_required_packages }}"
     state: installed
   become: true
 

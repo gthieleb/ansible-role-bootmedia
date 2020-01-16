@@ -1,0 +1,19 @@
+bootmedia_owner: "{{ hostvars[groups['bootmedia_host'][0]]['ansible_user_id'] }}"
+
+bootmedia_target_default_packages: []
+
+# use authorized_keys file from users home
+bootmedia_authorized_keys_file: "{{ '~/.ssh/authorized_keys' | expanduser }}"
+
+bootmedia_original_media_filename: "{{ bootmedia_original_media_url|basename }}"
+bootmedia_original_content_path: "{{ bootmedia_parent_path }}/{{ (bootmedia_original_media_filename|basename|splitext)[0] }}"
+
+bootmedia_parent_path: "{{ playbook_dir }}/bootmedia"
+bootmedia_output_path: "{{ bootmedia_parent_path }}/{{ inventory_hostname_short }}.iso"
+bootmedia_tmp_base_dir: "{{ bootmedia_parent_path }}/tmp"
+bootmedia_tmp_parent_dir: "{{ bootmedia_tmp_base_dir }}/{{ inventory_hostname_short }}"
+bootmedia_tmp_dir: "{{ bootmedia_tmp_parent_dir }}/files"
+bootmedia_nested_images_mnt_dir: "{{ bootmedia_tmp_parent_dir }}/mnt"
+
+bootmedia_extract_command: >
+  bsdtar -xvf "{{ bootmedia_parent_path }}/{{ bootmedia_original_media_filename }}" -C "{{ bootmedia_original_content_path }}"

@@ -1,8 +1,8 @@
-- name: Load variable file based on the OS system family
-  include_vars: "vars/{{ bootmedia_data.system.lower() }}.yaml"
-
 - name: Load a variable file based on the OS distribution
-  include_vars: "vars/{{ bootmedia_data.distribution.lower() }}.yaml"
-  when: bootmedia_data.distribution is defined and bootmedia_data.distribution
+  include_vars: "vars/distribution/{{ bootmedia_data.distribution.lower() }}.yml"
 
-- debug: msg="{{ bootmedia_original_media_filename }}"
+- name: Load variable file based on the bootmedia_target system
+  include_vars: "vars/system/{{ bootmedia_target_system }}.yml"
+
+- name: Load variable file based on the bootmedia_target system family
+  include_vars: "vars/system-family/{{ bootmedia_target_system_family }}.yml"

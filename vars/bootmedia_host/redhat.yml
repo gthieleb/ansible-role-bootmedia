@@ -1,0 +1,4 @@
+bootmedia_host_required_packages:
+  - xorriso
+  - syslinux
+  - bsdtar
