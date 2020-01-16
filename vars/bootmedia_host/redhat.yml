@@ -1,4 +1,5 @@
 bootmedia_host_required_packages:
+  - rsync
   - xorriso
   - syslinux
   - bsdtar
