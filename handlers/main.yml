@@ -1,17 +1,17 @@
-- name: cleanup bootmedia tmp dir
+- name: cleanup bootmedia tmp dir parent
   file:
     state: absent
-    path: "{{ bootmedia_tmp_dir }}"
-  delegate_to: "{{ host }}"
+    path: "{{ bootmedia_tmp_parent_dir }}"
+  delegate_to: "{{ bootmedia_host }}"
   loop:
       "{{ groups['bootmedia_host'] }}"
   loop_control:
-    loop_var: host
+    loop_var: bootmedia_host
 
 - name: extract bootmedia files
   command: "{{ bootmedia_extract_command }}"
-  delegate_to: "{{ host }}"
+  delegate_to: "{{ bootmedia_host }}"
   loop:
       "{{ groups['bootmedia_host'] }}"
   loop_control:
-    loop_var: host
+    loop_var: bootmedia_host
