@@ -7,6 +7,10 @@
   import_tasks: bootmedia_init.yml
   delegate_to: "{{ bootmedia_host }}"
 
+- name: Set selinux specific config for bootmedia usage
+  import_tasks: bootmedia_selinux.yml
+  delegate_to: "{{ bootmedia_host }}"
+
 - name: Perform tasks to create bootmedia
   import_tasks: bootmedia_prepare.yml
   delegate_to: "{{ bootmedia_host }}"

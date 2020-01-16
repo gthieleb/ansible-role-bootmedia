@@ -3,3 +3,11 @@ bootmedia_host_required_packages:
   - xorriso
   - syslinux
   - bsdtar
+  - policycoreutils-python
+
+bootmedia_expose_http:
+    package: httpd
+    service: httpd
+    alias: "/{{ bootmedia_original_content_path | basename }}"
+    configfile: /etc/httpd/conf.d/bootmedia.conf
+  

@@ -1,0 +1,34 @@
+---
+- name: Install http package
+  package: 
+    name: "{{ bootmedia_expose_http.package }}"
+
+- name: Enable service
+  service: 
+    name: "{{ bootmedia_expose_http.service }}"
+    enabled: true
+
+- name: "Configure http alias {{ bootmedia_expose_http.alias }} for {{ bootmedia_original_content_path }}"
+  blockinfile:
+    path: "{{ bootmedia_expose_http.configfile }}"
+    create: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ bootmedia_expose_http.alias }}"
+    block: |
+      Alias "{{ bootmedia_expose_http.alias }}" "{{ bootmedia_original_content_path }}"
+      <Directory {{ bootmedia_original_content_path }}>
+           Options Indexes FollowSymLinks
+           AllowOverride All
+           Require all granted
+      </Directory>
+  notify: expose http handler
+
+- set_fact:
+    bootmedia_repos:
+      - name: os
+        url: "http://{{ hostvars[bootmedia_host].ansible_default_ipv4.address }}{{ bootmedia_expose_http.alias }}"
+
+- name: Append exposed content to bootmedia_data repos
+  set_fact:
+    bootmedia_data: "{{ bootmedia_data | combine(dict(repos=bootmedia_repos)) }}"
+  when: bootmedia_data.repos is not defined or bootmedia_data.repos
+

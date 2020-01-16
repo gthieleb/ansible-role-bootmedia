@@ -31,7 +31,7 @@
   changed_when: rsync_results.stdout_lines
   notify: cleanup bootmedia tmp dir parent
 
-- name: Custom tarball task
+- name: Create custom tarball task
   include_tasks: bootmedia_custom_tarball.yml
   when: bootmedia_custom_tarball is defined
 

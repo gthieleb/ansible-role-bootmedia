@@ -1,0 +1,17 @@
+---
+- name: "Allow apache to modify files in {{ bootmedia_original_content_path }}"
+  block:
+    - seboolean:
+        name: httpd_use_nfs
+        state: true
+        persistent: true
+
+    - sefcontext:
+        target: "{{ bootmedia_original_content_path }}(/.*)?"
+        setype: httpd_sys_content_t
+        state: present
+      notify: selinux restore bootmedia content path
+  when: >
+    bootmedia_expose_http_enable and
+    hostvars[bootmedia_host].ansible_selinux and 
+    hostvars[bootmedia_host].ansible_selinux.status == "enabled"

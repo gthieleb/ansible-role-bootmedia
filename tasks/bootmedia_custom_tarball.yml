@@ -1,16 +1,16 @@
 - name: Create directory structure for shipped tarfiles
   file: 
     state: directory
-    dest: "{{ bootmedia_custom_tarball.src }}/{{ item.dest }}" 
-  with_items:
-    - "{{ bootmedia_custom_tarball.directories }}"
+    path: "{{ bootmedia_custom_tarball.src }}/{{ item.dest }}" 
+  loop:
+    "{{ bootmedia_custom_tarball.directories }}"
 
 - name: Append files that should be shipped with BootISO and deployed on target system
   copy: 
-    remote_src: true
+    remote_src: "{{ item.remote_src }}"
     src: "{{ item.src }}" 
     dest: "{{ bootmedia_custom_tarball.src }}/{{ item.dest }}"
-  with_items:
+  loop:
     "{{ bootmedia_custom_tarball.files }}"
 
 - name: Create tarball of appended files and ship on the BootISO

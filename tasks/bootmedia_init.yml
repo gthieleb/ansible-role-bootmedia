@@ -46,5 +46,15 @@
     owner: "{{ bootmedia_owner }}"
   become: true
 
+- name: Create public/private ssh key if neccessary
+  include_tasks: bootmedia_ssh_keygen.yml
+  loop:
+    "{{ bootmedia_custom_tarball.files }}"
+  when: item.ssh_key is defined and item.ssh_key
+
+- name: Expose media folder if required
+  include_tasks: bootmedia_expose_http.yml
+  when: bootmedia_expose_http_enable
+
 - name: Force all notified handlers to run at this point, not waiting for normal sync points
   meta: flush_handlers

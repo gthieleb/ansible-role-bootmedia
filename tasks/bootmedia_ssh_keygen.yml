@@ -1,0 +1,30 @@
+---
+- name: Create ssh priv/pub key pair on ansible controller node
+  block: 
+  - stat: 
+      path: "{{ item.src }}"
+    register: openssh_keypair_results
+
+  - name: Set path of the created ssh key
+    set_fact:
+      openssh_private_key_path: "{{ item.src | dirname }}/id_rsa-{{ inventory_hostname }}"
+      openssh_public_key_path: "{{ item.src | dirname }}/id_rsa-{{ inventory_hostname }}.pub"
+
+    # Do not change permissions here.
+    # It may be the usecase that people point to their 
+    # own ~/.ssh directory that relys on another permission bits.
+  - name: Create parent dir for ssh priv/pub key pair on ansible controller node
+    file:
+      path: "{{ item.src | dirname }}"
+      state: directory
+
+  - name: Create bootmedia openssh key
+    openssh_keypair:
+        path: "{{ openssh_private_key_path }}"
+    register: openssh_keypair_created
+    when: not openssh_keypair_results.stat.exists
+
+  - name: "Rename created public key to {{ item.src }}"
+    command: "mv {{ openssh_public_key_path }} {{ item.src }}"
+    when: openssh_keypair_created.changed
+  delegate_to: localhost

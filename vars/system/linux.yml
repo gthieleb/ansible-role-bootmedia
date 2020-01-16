@@ -8,11 +8,22 @@ bootmedia_custom_tarball:
   dest: files.tar
   src: "{{ bootmedia_tmp_parent_dir }}/tarball_files"
   directories:
-    - {dest: /, mode: "0755", owner: root}
-    - {dest: /root, mode: "0700", owner: root}
-    - {dest: /root/.ssh, mode: "0700", owner: root}
+    - dest: /
+      mode: "0755"
+      owner: root
+    - dest: /root
+      mode: "0700"
+      owner: root
+    - dest: /root/.ssh
+      mode: "0700"
+      owner: root
   files:
-    - {src: "{{ bootmedia_authorized_keys_file }}", dest: "/root/.ssh/authorized_keys", mode: "0600", owner: root}
+    - src: "{{ bootmedia_authorized_keys_file }}"
+      dest: "/root/.ssh/authorized_keys"
+      mode: "0600"
+      owner: root
+      ssh_key: true
+      remote_src: false
 
 bootmedia_target_services_enabled:
   - chronyd
