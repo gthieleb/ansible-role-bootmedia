@@ -6,7 +6,7 @@ boottemplate:
 
 bootmedia_custom_tarball:
   dest: files.tar
-  src: "{{ bootmedia_tmp_base_dir }}/tarball_files/{{ inventory_hostname_short }}"
+  src: "{{ bootmedia_tmp_parent_dir }}/tarball_files"
   directories:
     - {dest: /, mode: "0755", owner: root}
     - {dest: /root, mode: "0700", owner: root}
