@@ -2,6 +2,7 @@
 dependencies: []
 
 galaxy_info:
+  name: bootmedia
   author: gthieleb
   description: Role to create Bootmedia (ISO)
   company: "Glue-IT Gbr"
