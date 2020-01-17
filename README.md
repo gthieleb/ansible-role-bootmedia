@@ -1,5 +1,30 @@
+# Ansible Bootmedia Role
+
+## About 
+
 This role creates bootmedia in ISO format that
-are ready to be used for installation of new hosts. 
+are ready to be used for installation of new vms and hosts. 
+
+There are three categories of files that are shipped with the bootmedia:
+
+1. A setup file, that performs unattended network configuration
+in an early stage. For linux this is a customised `isolinux` configuration file.
+When `UEFI` boot is enabled, a `grub` config file with similar content is created.
+
+2. For  installation media, a setup file is shipped that contains the information for an
+unattended information. For Redhat this is known as kickstart file.
+
+3. An additional file is shipped that contains files to perform authentication so
+that other tasks. For linux this is a ssh public key. For linux this is
+a tarball that gets extracted to the root filesystem when installation is
+finished.
+
+It is possible to create 3 flavors of bootmedia that differ in size:
+
+- `full`: a bootmedia that ships the original content and the setup file
+- `minimal`: a bootmedia that ships the install image (in Redhat called
+  2ndstage). This does not ship any packages
+- `tiny`: A bootmedia that only ships the bootloader and the setup
 
 Features:
 - Download the bootmedia, extract to a folder
@@ -13,13 +38,14 @@ test1
 test2
 
 [bootmedia_host]
-localhost bootmedia_parent_path=/data/isos
+localhost
 ```
 
 Playbook Example:
 
 ```
 ---
+# gather facts from bootmedia_host
 - hosts: bootmedia_host
 - hosts: bootmedia_target
   gather_facts: false
