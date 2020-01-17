@@ -32,21 +32,20 @@ Features:
 
 ## Howto Use
 
-Inventory Example:
+### Inventory Example
 
-inventory:
+inventory.ini:
 ```
 [bootmedia_target]
 test1
-test2
 
 [bootmedia_host]
 localhost
 ```
 
-Example data (full content):
+### Example payload (full content)
 
-host_vars/myhost:
+host_vars/test1.yml:
 ```
 bootmedia_data:
   language: en_US
@@ -70,9 +69,9 @@ bootmedia_data:
       mac: 52:54:00:a3:48:7c
 ```
 
-Playbook Example:
+### Playbook Example
 
-prepare_bootmedia:
+prepare_bootmedia.yml:
 ```
 ---
 # gather facts from bootmedia_host
@@ -84,27 +83,28 @@ prepare_bootmedia:
         name: bootmedia
 ```
 
-
-
 Example run:
 
 ```
-ansible-playbook -i inventory prepare_bootmedia.yml
+ansible-playbook -i inventory.ini prepare_bootmedia.yml
 ```
 
 # FAQ
 
-Can I use `extra-vars` pointing to the `bootmedia_data` data?
+Can I use `extra-vars` pointing to the `bootmedia_data` payload?
 
 The role makes use of `set_fact`. 
 In recent ansible(>2.4) is an issue with variable precedence 
 when using `set_fact` and `--extra-vars` together.
 
-So it is recommended to put the `bootmedia_data` into `host_vars` or directly
-into the `inventory` file as explained in the docs [1].
-
+Something like this will *not* work:
 ```
 ansible-playbook -i inventory bootmedia_prepare.yml -e@~/centos-full.yml
 ```
+
+It is recommended to put the `bootmedia_data` into `host_vars` or directly
+into the `inventory` file as explained in the docs [1].
+
+
 
 [1] https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#id12
