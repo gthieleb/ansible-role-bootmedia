@@ -31,4 +31,3 @@
   set_fact:
     bootmedia_data: "{{ bootmedia_data | combine(dict(repos=bootmedia_repos)) }}"
   when: bootmedia_data.repos is not defined or bootmedia_data.repos
-

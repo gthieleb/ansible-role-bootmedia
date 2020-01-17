@@ -19,5 +19,3 @@
     chdir: "{{ bootmedia_tmp_dir }}"
   become: true
   when: item.post_cmd is defined
-
-

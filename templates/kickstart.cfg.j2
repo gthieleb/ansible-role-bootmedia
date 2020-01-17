@@ -22,7 +22,8 @@ selinux --permissive
 selinux --enforcing
 {% endif %}
 
-# at least one repo url is required at this step
+# at least one repo url is required for a tiny iso 
+# to perform installation
 {% if not bootmedia_data.full_content %}
 install 
 url --url={{ bootmedia_data.repos[0].url }} 

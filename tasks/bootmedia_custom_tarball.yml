@@ -18,5 +18,3 @@
   args:
     chdir: "{{ bootmedia_custom_tarball.src }}"
     warn: false
-
-

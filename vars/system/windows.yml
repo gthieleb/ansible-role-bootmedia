@@ -26,5 +26,3 @@ bootmedia_create_command: >
     -no-emul-boot \
     -b efi/microsoft/boot/efisys_noprompt.bin \
     -o {{ bootmedia_output_path }} .
-
-
