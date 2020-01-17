@@ -3,33 +3,17 @@
     state: absent
     path: "{{ bootmedia_tmp_parent_dir }}"
   delegate_to: "{{ bootmedia_host }}"
-  loop:
-      "{{ groups['bootmedia_host'] }}"
-  loop_control:
-    loop_var: bootmedia_host
 
 - name: extract bootmedia files
   command: "{{ bootmedia_extract_command }}"
   delegate_to: "{{ bootmedia_host }}"
-  loop:
-      "{{ groups['bootmedia_host'] }}"
-  loop_control:
-    loop_var: bootmedia_host
 
 - name: expose http handler
   service: 
     name: "{{ bootmedia_expose_http.service }}"
     state: restarted
   delegate_to: "{{ bootmedia_host }}"
-  loop:
-      "{{ groups['bootmedia_host'] }}"
-  loop_control:
-    loop_var: bootmedia_host
 
 - name: selinux restore bootmedia content path
   command: "restorecon -irv {{ bootmedia_original_content_path }}"
   delegate_to: "{{ bootmedia_host }}"
-  loop:
-      "{{ groups['bootmedia_host'] }}"
-  loop_control:
-    loop_var: bootmedia_host
