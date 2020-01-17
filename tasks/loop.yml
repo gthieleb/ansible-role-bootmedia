@@ -1,4 +1,9 @@
 ---
+  # register bootmedia_host as fact that can be used by handlers
+- name: Register bootmedia_host as fact
+  set_fact: 
+    bootmedia_host: "{{ bootmedia_host }}"
+
 - name: Load system and os specific vars 
   import_tasks: bootmedia_vars.yml
   delegate_to: "{{ bootmedia_host }}"
