@@ -1,0 +1,64 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+lint:
+  name: yamllint
+platforms:
+  - name: centos7-host
+    image: centos:7
+    groups:
+      - bootmedia_host
+  - name: centos7-target
+    groups:
+      - bootmedia_target
+    privileged: True
+    security_opts:
+      - seccomp=unconfined
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    keep_volumes: False
+    tmpfs:
+      - /tmp
+      - /run
+    command: /lib/systemd/systemd
+provisioner:
+  name: ansible
+  options:
+    vvv: false
+  lint:
+    name: ansible-lint
+  playbooks:
+    converge: playbook.yml
+  inventory:
+    hosts:
+      bootmedia_target:
+        centos7-target:
+    host_vars:
+      centos7-target:
+        bootmedia_host_init_enabled: true
+        bootmedia_data:
+          language: en_US
+          locale: de_DE
+          timezone: Europe/Berlin
+          full_content: true
+          arch: x86_64
+          system: linux
+          distribution: centos-7
+          efiboot: true
+          bootdisk: "vda"
+          networks:
+            - admin: true
+              dhcp: false
+              domain: local.lab
+              address: 192.168.200.41
+              netmask: 255.255.255.0
+              gateway: 192.168.200.1
+              dns: 192.168.200.200
+              mac: 52:54:00:9d:bb:47
+  log: true
+verifier:
+  name: testinfra
+  lint:
+    name: flake8

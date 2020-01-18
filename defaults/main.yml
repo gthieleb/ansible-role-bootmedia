@@ -18,4 +18,6 @@ bootmedia_nested_images_mnt_dir: "{{ bootmedia_tmp_parent_dir }}/mnt"
 bootmedia_extract_command: >
   bsdtar -xvf "{{ bootmedia_parent_path }}/{{ bootmedia_original_media_filename }}" -C "{{ bootmedia_original_content_path }}"
 
+bootmedia_host_init_enabled: false
 bootmedia_expose_http_enable: false
+bootmedia_host_selinux_config_enabled: false

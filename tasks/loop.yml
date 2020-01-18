@@ -11,10 +11,12 @@
 - name: Perform required pre-tasks to create bootmedias
   import_tasks: bootmedia_init.yml
   delegate_to: "{{ bootmedia_host }}"
+  when: bootmedia_host_init_enabled
 
 - name: Set selinux specific config for bootmedia usage
   import_tasks: bootmedia_selinux.yml
   delegate_to: "{{ bootmedia_host }}"
+  when: bootmedia_host_selinux_config_enabled
 
 - name: Perform tasks to create bootmedia
   import_tasks: bootmedia_prepare.yml

@@ -1,0 +1,8 @@
+---
+- name: Converge
+  hosts: bootmedia_host
+- name: Converge
+  hosts: bootmedia_target
+  gather_facts: false
+  roles:
+    - role: bootmedia
