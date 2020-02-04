@@ -68,9 +68,7 @@ timezone {{ bootmedia_data.timezone }} --isUtc
 ignoredisk --only-use={{ bootdisk.name }}
 # BOOTLOADER
 # System bootloader configuration
-# System bootloader configuration
-bootloader --append=" crashkernel=auto" --location=mbr --boot-drive={{ bootdisk.name }}
-bootloader --location=mbr --boot-drive={{ bootdisk.name }}
+bootloader {% if bootmedia_data.additional_kernel_params is defined %}--append="{{ bootmedia_data.additional_kernel_params }}" --location=mbr --boot-drive={{ bootdisk.name }}
 # PARTITIONIERUNG UND LVM KONFIG.
 clearpart --all --drives={{ bootdisk.name }} --initlabel
 
