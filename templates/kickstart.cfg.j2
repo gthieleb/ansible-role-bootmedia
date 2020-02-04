@@ -55,7 +55,7 @@ network --device={{ network.mac }} --onboot=on {% if bootmedia_data.ipv6 is defi
 # append further repos
 {% if bootmedia_data.repos is defined %}
 {% for repo in bootmedia_data.repos[1:] %}
-repo --name={{ r.name }} --baseurl={{ r.url }} 
+repo --name={{ repo.name }} --baseurl={{ repo.url }} 
 {% endfor %}
 {% endif %}
 
