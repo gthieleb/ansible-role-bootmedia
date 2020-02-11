@@ -1,7 +1,7 @@
-bootmedia_target_system: linux
-bootmedia_target_system_family: redhat
-bootmedia_target_default_packages:
+_bootmedia_target_system: linux
+_bootmedia_target_system_family: redhat
+_bootmedia_target_default_packages:
     - "@^minimal"
 
-bootmedia_original_media_url: "http://artfiles.org/centos.org/7/isos/x86_64/CentOS-7-x86_64-Minimal-1908.iso"
-bootmedia_original_media_version: "7.7-1908"
+_bootmedia_original_media_url: "http://artfiles.org/centos.org/7/isos/x86_64/CentOS-7-x86_64-Minimal-1908.iso"
+_bootmedia_original_media_version: "7.7-1908"
