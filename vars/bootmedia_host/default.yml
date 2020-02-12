@@ -1,0 +1,22 @@
+bootmedia_host_distribution: "{{ (hostvars[groups['bootmedia_host'][0]].ansible_distribution.lower(), hostvars[groups['bootmedia_host'][0]].ansible_distribution_major_version)|join('-') }}"
+
+bootmedia_host_required_packages:
+  centos-7:
+    - rsync
+    - xorriso
+    - syslinux
+    - bsdtar
+    - policycoreutils-python
+  centos-8:
+    - rsync
+    - xorriso
+    - syslinux
+    - bsdtar
+    - policycoreutils-python3
+
+bootmedia_expose_http:
+    package: httpd
+    service: httpd
+    alias: "/{{ bootmedia_original_content_path | basename }}"
+    configfile: /etc/httpd/conf.d/bootmedia.conf
+  
