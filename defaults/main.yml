@@ -1,3 +1,10 @@
+bootmedia_target_system: "{{ _bootmedia_target_system }}"
+bootmedia_target_system_family: "{{ _bootmedia_target_system_family }}"
+bootmedia_target_default_packages: "{{ _bootmedia_target_default_packages }}"
+
+bootmedia_original_media_url: "{{ _bootmedia_original_media_url }}"
+bootmedia_original_media_version: "{{ _bootmedia_original_media_version }}"
+
 bootmedia_owner: "{{ hostvars[groups['bootmedia_host'][0]]['ansible_user_id'] }}"
 
 bootmedia_target_default_packages: []
