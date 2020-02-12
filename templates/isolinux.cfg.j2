@@ -68,7 +68,7 @@ label silent
   {% if bootmedia_data.full_content %}
   append initrd=initrd.img modprobe.blacklist=lpfc inst.text inst.ks=cdrom
   {% else %}
-  append initrd=initrd.img modprobe.blacklist=lpfc inst.text inst.ks=cdrom nameserver={{ boot.dns }} bootif={{ boot.mac }} ip={{ boot.address }}::{{ boot.gateway }}:{{ boot.netmask }}:::none inst.http={{ bootmedia_data.repos[0].url }}
+  append initrd=initrd.img modprobe.blacklist=lpfc inst.text inst.ks=cdrom nameserver={{ boot.dns[0] }} bootif={{ boot.mac }} ip={{ boot.address }}::{{ boot.gateway }}:{{ boot.netmask }}:::none inst.http={{ bootmedia_data.repos[0].url }}
   {% endif %}
 
 menu separator # insert an empty line

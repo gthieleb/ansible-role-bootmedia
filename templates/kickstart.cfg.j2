@@ -49,7 +49,7 @@ firewall --enabled --ssh
 
 # anaconda does not support multilines so we have to put related config for a network in a single line
 {% for network in bootmedia_data.networks %}
-network --device={{ network.mac }} --onboot=on {% if bootmedia_data.ipv6 is defined and not bootmedia_data.ipv6 %}--noipv6{% endif %} {% if network.dhcp is defined and network.dhcp %} --bootproto=dhcp --hostname={{ inventory_hostname_short }} {% else %} --bootproto=static --ip={{ network.address }} --netmask={{ network.netmask }} {% if network.dns is defined and network.dns %} --nameserver={{ network.dns }} {% else %} --nodns {% endif%} {% if network.admin %} --hostname={{ inventory_hostname_short }} --gateway={{ network.gateway }} --activate {% endif %} {% endif %}
+network --device={{ network.mac }} --onboot=on {% if bootmedia_data.ipv6 is defined and not bootmedia_data.ipv6 %}--noipv6{% endif %} {% if network.dhcp is defined and network.dhcp %} --bootproto=dhcp --hostname={{ inventory_hostname_short }} {% else %} --bootproto=static --ip={{ network.address }} --netmask={{ network.netmask }} {% if network.dns is defined and network.dns %} --nameserver={{ network.dns[0] }} {% else %} --nodns {% endif%} {% if network.admin %} --hostname={{ inventory_hostname_short }} --gateway={{ network.gateway }} --activate {% endif %} {% endif %}
 {% endfor %}
 
 # append further repos

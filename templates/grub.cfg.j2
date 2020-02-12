@@ -27,7 +27,7 @@ menuentry 'Install "{{ bootmedia_data.distribution }}" (Version: {{ bootmedia_or
   {% if bootmedia_data.full_content %}
 	linuxefi /images/pxeboot/vmlinuz modprobe.blacklist=lpfc inst.text inst.stage2=hd:LABEL={{ inventory_hostname_short }} inst.ks=cdrom
   {% else %}
-	linuxefi /images/pxeboot/vmlinuz modprobe.blacklist=lpfc inst.text inst.ks=cdrom nameserver={{ boot.dns }} bootif={{ boot.mac }} ip={{ boot.address }}::{{ boot.gateway }}:{{ boot.netmask }}:::none inst.http={{ bootmedia_data.repos[0].url }}
+	linuxefi /images/pxeboot/vmlinuz modprobe.blacklist=lpfc inst.text inst.ks=cdrom nameserver={{ boot.dns[0] }} bootif={{ boot.mac }} ip={{ boot.address }}::{{ boot.gateway }}:{{ boot.netmask }}:::none inst.http={{ bootmedia_data.repos[0].url }}
   {% endif %}
 	initrdefi /images/pxeboot/initrd.img
 }
